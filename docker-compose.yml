@@ -1,0 +1,176 @@
+services:
+
+  traefik:
+    image: "traefik:v3.0"
+    container_name: "traefik"
+    command:
+      - "--api.insecure=true"
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--entryPoints.web.address=:80"
+    ports:
+      - "80:80"
+      - "8080:8080"
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+
+  master:
+    build:
+      context: docker
+      target: master
+    container_name: "master_node"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.master.rule=Host(`localhost`) && PathPrefix(`/master`)"
+      - "traefik.http.services.master.loadbalancer.server.port=8000"
+      - "traefik.http.routers.master.entrypoints=web"
+
+  sh_de:
+    build:
+      context: docker
+      target: sh_de
+    container_name: "sh_de"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.shde.rule=Host(`localhost`) && PathPrefix(`/sh_de`)"
+      - "traefik.http.services.shde.loadbalancer.server.port=8001"
+      - "traefik.http.routers.shde.entrypoints=web"
+
+  idx_de:
+    build:
+      context: docker
+      target: idx_de
+    container_name: "idx_de"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.idxde.rule=Host(`localhost`) && PathPrefix(`/idx`)"
+      - "traefik.http.services.idxde.loadbalancer.server.port=8002"
+      - "traefik.http.routers.idxde.entrypoints=web"
+
+  hf:
+    build:
+      context: docker
+      target: hf
+    container_name: "hf"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.hf.rule=Host(`localhost`) && PathPrefix(`/hf`)"
+      - "traefik.http.services.hf.loadbalancer.server.port=8000"
+      - "traefik.http.routers.hf.entrypoints=web"
+    environment:
+      - "PR_INDEXERS=idxc1:9997,idxc3:9997,idxc3:9997,idxc4:9997"
+
+  idxc1:
+    build:
+      context: docker
+      target: idxc
+    container_name: "idxc1"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.idxc1.rule=Host(`localhost`) && PathPrefix(`/idxc1`)"
+      - "traefik.http.services.idxc1.loadbalancer.server.port=8003"
+      - "traefik.http.routers.idxc1.entrypoints=web"
+    environment:
+      - "SITE=site1"
+      - "SERVER_NAME=idxc1"
+      - "HTTP_PORT=8003"
+
+  idxc2:
+    build:
+      context: docker
+      target: idxc
+    container_name: "idxc2"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.idxc2.rule=Host(`localhost`) && PathPrefix(`/idxc2`)"
+      - "traefik.http.services.idxc2.loadbalancer.server.port=8004"
+      - "traefik.http.routers.idxc2.entrypoints=web"
+    environment:
+      - "SITE=site1"
+      - "SERVER_NAME=idxc2"
+      - "HTTP_PORT=8004"
+
+  idxc3:
+    build:
+      context: docker
+      target: idxc
+    container_name: "idxc3"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.idxc3.rule=Host(`localhost`) && PathPrefix(`/idxc3`)"
+      - "traefik.http.services.idxc3.loadbalancer.server.port=8005"
+      - "traefik.http.routers.idxc3.entrypoints=web"
+    environment:
+      - "SITE=site2"
+      - "SERVER_NAME=idxc3"
+      - "HTTP_PORT=8005"
+
+  idxc4:
+    build:
+      context: docker
+      target: idxc
+    container_name: "idxc4"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.idxc4.rule=Host(`localhost`) && PathPrefix(`/idxc4`)"
+      - "traefik.http.services.idxc4.loadbalancer.server.port=8006"
+      - "traefik.http.routers.idxc4.entrypoints=web"
+    environment:
+      - "SITE=site2"
+      - "SERVER_NAME=idxc4"
+      - "HTTP_PORT=8006"
+
+  shc1:
+    build:
+      context: docker
+      target: shc
+    container_name: "shc1"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.shc1.rule=Host(`localhost`) && PathPrefix(`/shc1`)"
+      - "traefik.http.services.shc1.loadbalancer.server.port=8007"
+      - "traefik.http.routers.shc1.entrypoints=web"
+    environment:
+      - "SITE=site0"
+      - "SERVER_NAME=shc1"
+      - "HTTP_PORT=8007"
+      - "PREFFERED_CAPTAIN=true"
+
+  shc2:
+    build:
+      context: docker
+      target: shc
+    container_name: "shc2"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.shc2.rule=Host(`localhost`) && PathPrefix(`/shc2`)"
+      - "traefik.http.services.shc2.loadbalancer.server.port=8008"
+      - "traefik.http.routers.shc2.entrypoints=web"
+    environment:
+      - "SITE=site0"
+      - "SERVER_NAME=shc2"
+      - "HTTP_PORT=8008"
+
+  shc3:
+    build:
+      context: docker
+      target: shc
+    container_name: "shc3"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.shc3.rule=Host(`localhost`) && PathPrefix(`/shc3`)"
+      - "traefik.http.services.shc3.loadbalancer.server.port=8009"
+      - "traefik.http.routers.shc3.entrypoints=web"
+    environment:
+      - "SITE=site0"
+      - "SERVER_NAME=shc3"
+      - "HTTP_PORT=8009"
+
+  fwd1:
+    build:
+      context: docker
+      target: fwd
+    container_name: "fwd1"
+    environment:
+      - "SERVER_NAME=fwd1"
+      - "PR_INDEXERS=idxc1:9997,idxc3:9997,idxc3:9997,idxc4:9997"
