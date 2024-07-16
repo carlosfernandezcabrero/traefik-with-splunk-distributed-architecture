@@ -6,6 +6,7 @@ SPLUNK_HOME = os.environ["SPLUNK_HOME"]
 
 Template(
     """[general]
+pass4SymmKey = yoursecretkey
 serverName = de_sh
 site = site0
 
