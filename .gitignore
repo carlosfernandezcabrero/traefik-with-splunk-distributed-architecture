@@ -2,3 +2,4 @@
 /docker/Splunk.License
 /.idea/
 /.venv/
+.DS_Store
