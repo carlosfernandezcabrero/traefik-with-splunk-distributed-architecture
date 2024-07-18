@@ -1,14 +1,35 @@
-FROM centos:centos7 as splunkenterprise-base
+FROM centos:centos7 as splunkenterprise
+
+ENV SPLUNK_HOME=/usr/local/splunk
 
 WORKDIR /tmp
 COPY scripts/fix_mirror_error.sh .
 COPY scripts/download_splunk.sh .
 COPY scripts/clean_system.sh .
+COPY scripts/install_jq.sh .
 
 WORKDIR /usr/local
 RUN chmod +x /tmp/fix_mirror_error.sh && /tmp/fix_mirror_error.sh \
+	&& yum install -y python-jinja2 wget \
 	&& chmod +x /tmp/download_splunk.sh && /tmp/download_splunk.sh "splunk/releases/7.3.6/linux/splunk-7.3.6-47d8552a4d84-Linux-x86_64.tgz" \
+	&& chmod +x /tmp/install_jq.sh && /tmp/install_jq.sh \
+	&& yum autoremove -y wget \
 	&& chmod +x /tmp/clean_system.sh && /tmp/clean_system.sh
+
+WORKDIR /usr/local/splunk
+COPY splunk-launch.enterprise.conf etc/splunk-launch.conf
+COPY Splunk.License ./etc/licenses/enterprise/Splunk.License.lic
+
+WORKDIR /usr/bin
+COPY scripts/perform_upgrade.sh . 
+COPY scripts/preliminary_health_checks.sh .
+RUN chmod +x perform_upgrade.sh preliminary_health_checks.sh \
+	&& /tmp/clean_system.sh
+
+CMD python /tmp/bootstrap.py \
+	&& ${SPLUNK_HOME}/bin/splunk start --answer-yes --accept-license --no-prompt --seed-passwd admin1234 \
+	&& tail -f /dev/null
+
 
 FROM centos:centos7 as splunkforwarder-base
 
@@ -22,24 +43,6 @@ RUN chmod +x /tmp/fix_mirror_error.sh && /tmp/fix_mirror_error.sh \
 	&& chmod +x /tmp/download_splunk.sh && /tmp/download_splunk.sh "universalforwarder/releases/7.3.6/linux/splunkforwarder-7.3.6-47d8552a4d84-Linux-x86_64.tgz" \
 	&& chmod +x /tmp/clean_system.sh && /tmp/clean_system.sh
 
-FROM centos:centos7 as splunkenterprise
-ENV SPLUNK_HOME=/usr/local/splunk
-
-WORKDIR /tmp
-COPY scripts/fix_mirror_error.sh .
-COPY scripts/clean_system.sh .
-RUN	chmod +x fix_mirror_error.sh && ./fix_mirror_error.sh \
-	&& yum install -y python-jinja2 \
-	&& chmod +x /tmp/clean_system.sh && /tmp/clean_system.sh
-
-WORKDIR /usr/local/splunk
-COPY --from=splunkenterprise-base /usr/local/splunk .
-COPY splunk-launch.enterprise.conf etc/splunk-launch.conf
-COPY Splunk.License ./etc/licenses/enterprise/Splunk.License.lic
-
-CMD python /tmp/bootstrap.py \
-	&& ./bin/splunk start --answer-yes --accept-license --no-prompt --seed-passwd admin1234 \
-	&& tail -f /dev/null
 
 FROM centos:centos7 as splunkforwarder
 ENV SPLUNK_HOME=/usr/local/splunkforwarder
@@ -58,6 +61,7 @@ COPY splunk-launch.forwarder.conf etc/splunk-launch.conf
 CMD python /tmp/bootstrap.py \
 	&& ./bin/splunk start --answer-yes --accept-license --no-prompt --seed-passwd admin1234 \
 	&& tail -f /dev/null
+
 
 FROM splunkenterprise as master
 COPY config/master/bootstrap.py /tmp
