@@ -31,6 +31,7 @@ captain_uri=https://shc1:8089
     mode=member
 {% endif -%}
 mgmt_uri = https://{{ env['SERVER_NAME'] }}:8089
+shcluster_label=CLUSTER_PRO
 
 [license]
 master_uri = https://master:8089"""
