@@ -18,6 +18,13 @@ if [ "$mgmt_captain_uri" = "$mgmt_member_uri" ]; then
     exit 1
 fi
 
+number_of_members_up=$(echo $cluster_state | jq '[.entry[0].content.peers[] | select(.status != "Up")] | length')
+
+if [ $number_of_members_up -gt 0 ]; then
+    echo "Cannot perform a rolling upgrade while members are not up. Run this command to check the status of the members: splunk show shcluster-status --verbose"
+    exit 1
+fi
+
 members_out_of_sync=$(echo $cluster_state | jq '[.entry[0].content.peers[] | select(.out_of_sync_node != false)] | length')
 
 if [ $members_out_of_sync -gt 0 ]; then
