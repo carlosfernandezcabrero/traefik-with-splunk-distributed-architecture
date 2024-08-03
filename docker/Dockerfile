@@ -21,9 +21,12 @@ COPY splunk-launch.enterprise.conf etc/splunk-launch.conf
 COPY Splunk.License ./etc/licenses/enterprise/Splunk.License.lic
 
 WORKDIR /usr/bin
+COPY scripts/perform_upgrade.sh .
 COPY scripts/perform_upgrade_shc.sh . 
 COPY scripts/preliminary_health_checks_shc.sh .
-RUN chmod +x perform_upgrade_shc.sh preliminary_health_checks_shc.sh \
+COPY scripts/perform_upgrade_idxc.sh . 
+COPY scripts/preliminary_health_checks_idxc.sh .
+RUN chmod +x perform_upgrade.sh perform_upgrade_shc.sh preliminary_health_checks_shc.sh perform_upgrade_idxc.sh preliminary_health_checks_idxc.sh \
 	&& /tmp/clean_system.sh
 
 CMD python /tmp/bootstrap.py \

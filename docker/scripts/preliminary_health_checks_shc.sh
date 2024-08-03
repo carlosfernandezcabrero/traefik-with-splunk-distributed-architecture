@@ -18,6 +18,7 @@ if [ "$mgmt_captain_uri" = "$mgmt_member_uri" ]; then
     exit 1
 fi
 
+echo "number_of_members_up: $(echo $cluster_state | jq '[.entry[0].content.peers[] | select(.status == "Up")] | length')"
 number_of_members_up=$(echo $cluster_state | jq '[.entry[0].content.peers[] | select(.status != "Up")] | length')
 
 if [ $number_of_members_up -gt 0 ]; then
@@ -25,6 +26,7 @@ if [ $number_of_members_up -gt 0 ]; then
     exit 1
 fi
 
+echo "members_out_of_sync: $(echo $cluster_state | jq '[.entry[0].content.peers[] | select(.out_of_sync_node == false)] | length')"
 members_out_of_sync=$(echo $cluster_state | jq '[.entry[0].content.peers[] | select(.out_of_sync_node != false)] | length')
 
 if [ $members_out_of_sync -gt 0 ]; then
@@ -32,6 +34,7 @@ if [ $members_out_of_sync -gt 0 ]; then
     exit 1
 fi
 
+echo "stable_captain: $(echo $cluster_state | jq '.entry[0].content.captain.stable_captain')"
 has_stable_captain=$(echo $cluster_state | jq '[.entry[0].content.captain | select(.stable_captain != false)] | length')
 
 if [ $has_stable_captain -eq 0 ]; then
@@ -39,6 +42,7 @@ if [ $has_stable_captain -eq 0 ]; then
     exit 1
 fi
 
+echo "service_ready_flag: $(echo $cluster_state | jq '.entry[0].content.captain.service_ready_flag')"
 is_service_ready=$(echo $cluster_state | jq '[.entry[0].content.captain | select(.service_ready_flag != false)] | length')
 
 if [ $is_service_ready -eq 0 ]; then

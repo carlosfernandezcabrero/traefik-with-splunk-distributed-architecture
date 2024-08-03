@@ -35,18 +35,7 @@ fi
 
 $SPLUNK_HOME/bin/splunk stop
 
-cd $SPLUNK_HOME/..
-
-if [ -f /tmp/splunk_7.3.6_backup.tgz ]; then
-    echo "Eliminando backup anterior"
-    rm -r /tmp/splunk_7.3.6_backup.tgz
-fi
-
-echo "Creando backup nuevo"
-tar -cf /tmp/splunk_7.3.6_backup.tgz splunk
-
-echo "Descomprimiendo nueva versión"
-tar -xf /tmp/splunk_8.1.latest.tgz
+perform_upgrade.sh /tmp/splunk_8.1.latest.tgz
 
 
 ################################################################################
