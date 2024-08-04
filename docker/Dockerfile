@@ -1,4 +1,4 @@
-FROM centos:centos7 as splunkenterprise
+FROM centos:centos7 AS splunkenterprise
 
 ENV SPLUNK_HOME=/usr/local/splunk
 
@@ -34,7 +34,7 @@ CMD python /tmp/bootstrap.py \
 	&& tail -f /dev/null
 
 
-FROM centos:centos7 as splunkforwarder-base
+FROM centos:centos7 AS splunkforwarder-base
 
 WORKDIR /tmp
 COPY scripts/fix_mirror_error.sh .
@@ -47,7 +47,7 @@ RUN chmod +x /tmp/fix_mirror_error.sh && /tmp/fix_mirror_error.sh \
 	&& chmod +x /tmp/clean_system.sh && /tmp/clean_system.sh
 
 
-FROM centos:centos7 as splunkforwarder
+FROM centos:centos7 AS splunkforwarder
 ENV SPLUNK_HOME=/usr/local/splunkforwarder
 
 WORKDIR /tmp
@@ -66,26 +66,26 @@ CMD python /tmp/bootstrap.py \
 	&& tail -f /dev/null
 
 
-FROM splunkenterprise as master
+FROM splunkenterprise AS master
 COPY config/master/bootstrap.py /tmp
 
-FROM splunkenterprise as sh_de
+FROM splunkenterprise AS sh_de
 COPY config/sh/bootstrap.py /tmp
 
-FROM splunkenterprise as idx_de
+FROM splunkenterprise AS idx_de
 COPY inputs.conf etc/system/local/
 COPY config/idx/bootstrap.py /tmp
 
-FROM splunkenterprise as hf
+FROM splunkenterprise AS hf
 COPY inputs.conf etc/system/local/
 COPY config/hf/bootstrap.py /tmp
 
-FROM splunkenterprise as idxc
+FROM splunkenterprise AS idxc
 COPY inputs.conf etc/system/local/
 COPY config/idxc/bootstrap.py /tmp
 
-FROM splunkenterprise as shc
+FROM splunkenterprise AS shc
 COPY config/shc/bootstrap.py /tmp
 
-FROM splunkforwarder as fwd
+FROM splunkforwarder AS fwd
 COPY config/fwd/bootstrap.py /tmp
