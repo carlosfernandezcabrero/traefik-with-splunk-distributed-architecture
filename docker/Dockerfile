@@ -9,8 +9,8 @@ COPY scripts/clean_system.sh .
 COPY scripts/install_jq.sh .
 
 WORKDIR /usr/local
-RUN chmod +x /tmp/fix_mirror_error.sh && /tmp/fix_mirror_error.sh \
-	&& yum install -y python-jinja2 wget \
+RUN sed -i 's/mirrorlist/#mirrorlist/g' /etc/yum.repos.d/CentOS-* \
+	&& sed -i 's|#baseurl=http://mirror.centos.org|baseurl=http://vault.centos.org|g' /etc/yum.repos.d/CentOS-* \
 	&& chmod +x /tmp/download_splunk.sh && /tmp/download_splunk.sh "splunk/releases/7.3.6/linux/splunk-7.3.6-47d8552a4d84-Linux-x86_64.tgz" \
 	&& chmod +x /tmp/install_jq.sh && /tmp/install_jq.sh \
 	&& yum autoremove -y wget \
@@ -42,7 +42,8 @@ COPY scripts/download_splunk.sh .
 COPY scripts/clean_system.sh .
 
 WORKDIR /usr/local	
-RUN chmod +x /tmp/fix_mirror_error.sh && /tmp/fix_mirror_error.sh \
+RUN sed -i 's/mirrorlist/#mirrorlist/g' /etc/yum.repos.d/CentOS-* \
+	&& sed -i 's|#baseurl=http://mirror.centos.org|baseurl=http://vault.centos.org|g' /etc/yum.repos.d/CentOS-* \
 	&& chmod +x /tmp/download_splunk.sh && /tmp/download_splunk.sh "universalforwarder/releases/7.3.6/linux/splunkforwarder-7.3.6-47d8552a4d84-Linux-x86_64.tgz" \
 	&& chmod +x /tmp/clean_system.sh && /tmp/clean_system.sh
 
@@ -53,8 +54,8 @@ ENV SPLUNK_HOME=/usr/local/splunkforwarder
 WORKDIR /tmp
 COPY scripts/fix_mirror_error.sh .
 COPY scripts/clean_system.sh .
-RUN chmod +x fix_mirror_error.sh && ./fix_mirror_error.sh \
-	&& yum install -y python-jinja2 \
+RUN sed -i 's/mirrorlist/#mirrorlist/g' /etc/yum.repos.d/CentOS-* \
+	&& sed -i 's|#baseurl=http://mirror.centos.org|baseurl=http://vault.centos.org|g' /etc/yum.repos.d/CentOS-* \
 	&& chmod +x /tmp/clean_system.sh && /tmp/clean_system.sh
 
 WORKDIR /usr/local/splunkforwarder
