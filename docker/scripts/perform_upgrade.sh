@@ -1,3 +1,5 @@
+#!/bin/sh
+
 cd $SPLUNK_HOME/..
 
 if [ -f /tmp/splunk_7.3.6_backup.tgz ]; then
