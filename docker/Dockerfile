@@ -48,6 +48,7 @@ RUN sed -i 's/mirrorlist/#mirrorlist/g' /etc/yum.repos.d/CentOS-* \
 	&& yum install -y wget dos2unix \
 	&& dos2unix /tmp/download_splunk.sh /tmp/clean_system.sh \
 	&& chmod +x /tmp/download_splunk.sh && /tmp/download_splunk.sh "universalforwarder/releases/7.3.6/linux/splunkforwarder-7.3.6-47d8552a4d84-Linux-x86_64.tgz" \
+	&& yum autoremove -y wget \
 	&& chmod +x /tmp/clean_system.sh && /tmp/clean_system.sh
 
 
